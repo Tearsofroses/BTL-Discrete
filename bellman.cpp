@@ -29,24 +29,25 @@ void BF(int G[20][20], int numberOfVertices, char startVertex, int BFValue[20], 
     count = (count+1)%numberOfVertices;
 }
 
-string BF_Path(const int BFPrev[20], char startVertex, char goalVertex) {
-    int currentVertex = goalVertex - 'A';
-    string path = "";
+void reverseStr(string& str)
+{
+    int n = str.length();
+    for (int i = 0; i < n / 2; i++)
+        swap(str[i], str[n - i - 1]);
+}
 
-    // Check if a path exists from start to goal (no predecessor for goal means no path)
-    if (BFPrev[currentVertex] == -1) {
-        return "No Path Found";
+string BF_Path(int G[20][20], int BFPrev[20], char startVertex, char goalVertex) {
+    string res = "";
+    int start = startVertex - 'A';
+    int end = goalVertex - 'A';
+
+    res += to_string(startVertex);
+    if (start == end) return res;
+    for (int i = start; i !=- -1; i = BFPrev[i]) {
+        res += " " + to_string(i+'A'); 
     }
-
-    // Build the path string by backtracking through predecessors
-    while (currentVertex != startVertex - 'A') {
-        path = string(1, currentVertex + 'A') + " " + path;
-        currentVertex = BFPrev[currentVertex];
-    }
-
-    // Add the starting vertex to the path
-    path = string(1, startVertex + 'A') + " " + path;
-    return path;
+    reverseStr(res);
+    return res;
 }
 
 int main(){
