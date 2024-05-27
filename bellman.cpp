@@ -36,15 +36,37 @@ void reverseStr(string& str)
         swap(str[i], str[n - i - 1]);
 }
 
-string BF_Path(int G[20][20], int BFPrev[20], char startVertex, char goalVertex) {
+string BF_Path(int G[20][20], int numberOfVertices, char startVertex, char goalVertex) {
+    int startIndex = startVertex - 'A';
+    int BFValue[20];
+    int BFPrev[20];
+    memset(BFPrev,-1,20);
+    memset(BFValue,-1,20);
+    BFValue[startIndex] = 0;
+    for (int i = 0; i < numberOfVertices; i++) {
+        BFValue[i] = G[startIndex][i];
+        BFPrev[i] = startIndex;
+    }
+    BFPrev[startIndex] = - 1;
+    for (int i = 0; i < numberOfVertices-1; i++) {    
+        for (int u = 0; u < numberOfVertices; u++) {
+            for (int v = 0; v < numberOfVertices; v++) {
+                if (BFValue[v] != 0 && (BFValue[v] > BFValue[u] + G[u][v])) {
+                    BFValue[v] = BFValue[u] + G[u][v];
+                    BFPrev[v] = u;
+                }
+            }
+        }
+    }
+
     string res = "";
     int start = startVertex - 'A';
     int end = goalVertex - 'A';
-
-    res += to_string(startVertex);
-    if (start == end) return res;
-    for (int i = start; i !=- -1; i = BFPrev[i]) {
-        res += " " + to_string(i+'A'); 
+    if (start == end) return string(1,startVertex);
+    for (int i = end; i != -1; i = BFPrev[i]) {
+        char temp = 'A';
+        temp += i;
+        res += " " + string(1,temp);
     }
     reverseStr(res);
     return res;
@@ -68,7 +90,7 @@ int main(){
     int BFPrev[20]; 
 
     // Run Bellman-Ford algorithm
-    for(int i=0;i<8;i++){
+    /* for(int i=0;i<8;i++){
     BFValue[i]=-1;
     BFPrev[i]=-1;
     }
@@ -85,7 +107,7 @@ int main(){
         }
         cout<<endl;
     }
-	cout << endl;
-    cout<<BF_Path(BFPrev,'A','E');
+	cout << endl; */
+    cout<<BF_Path(G,8,'H','E');
 	return 0;
 }
