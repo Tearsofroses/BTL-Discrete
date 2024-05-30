@@ -21,7 +21,6 @@ void BF(int G[20][20], int numberOfVertices, char startVertex, int BFValue[20], 
                 if (BFValue[v] != 0 && (BFValue[v] > BFValue[u] + G[u][v])) {
                     BFValue[v] = BFValue[u] + G[u][v];
                     BFPrev[v] = u;
-                    break;
                 }
             }
         }
@@ -87,10 +86,10 @@ int main(){
     int numberOfVertices = 8;
     char startVertex = 'D';
     int BFValue[20];
-    int BFPrev[20]; 
+    int BFPrev[20];
 
     // Run Bellman-Ford algorithm
-    /* for(int i=0;i<8;i++){
+    for(int i=0;i<8;i++){
     BFValue[i]=-1;
     BFPrev[i]=-1;
     }
@@ -107,7 +106,7 @@ int main(){
         }
         cout<<endl;
     }
-	cout << endl; */
-    cout<<BF_Path(G,8,'H','E');
+	cout << endl;
+    //cout<<BF_Path(G,8,'H','E');
 	return 0;
 }
