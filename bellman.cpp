@@ -2,8 +2,8 @@
 
 void BF(int G[20][20], int numberOfVertices, char startVertex, int BFValue[20], int BFPrev[20]) {
     static int count = 0;
+    int startIndex = startVertex - 'A';
     if (count == 0){
-        int startIndex = startVertex - 'A';
         BFValue[startIndex] = 0;
         for (int i = 0; i < numberOfVertices; i++) {
             BFValue[i] = G[startIndex][i];
@@ -12,18 +12,22 @@ void BF(int G[20][20], int numberOfVertices, char startVertex, int BFValue[20], 
         BFPrev[startIndex] = - 1;
     }
     else {
-        for (int u = 0; u < numberOfVertices; u++) {
+        int BFValueDup[numberOfVertices];
+        for (int i = 0; i < numberOfVertices; i++) {
+            BFValueDup[i] = BFValue[i];
+        }
+        for (int u = startIndex; u < numberOfVertices + startIndex; u++) {
+            int realIndex = u%numberOfVertices;
             for (int v = 0; v < numberOfVertices; v++) {
-                if (BFValue[v] != 0 && (BFValue[v] > BFValue[u] + G[u][v])) {
-                    BFValue[v] = BFValue[u] + G[u][v];
-                    BFPrev[v] = u;
+                if (BFValue[v] != 0 && (BFValue[v] > BFValueDup[realIndex] + G[realIndex][v])) {
+                    BFValue[v] = BFValueDup[realIndex] + G[realIndex][v];
+                    BFPrev[v] = realIndex;
                 }
             }
         }
     }
     count = (count+1)%numberOfVertices;
 }
-
 void reverseStr(string& str)
 {
     int n = str.length();
