@@ -1,170 +1,109 @@
-#include <bits/stdc++.h> 
-using namespace std;
-const int MAX_N = 1e5 + 5;
-// void reverseStr(string& str)
-// {
-//     int n = str.length();
-//     for (int i = 0; i < n / 2; i++)
-//         swap(str[i], str[n - i - 1]);
-// }
+#include "tsm.h"
 
-// string BF_Path(int G[20][20], int numberOfVertices, char startVertex, char goalVertex) {
-//     int startIndex = startVertex - 'A';
-//     int BFValue[20];
-//     int BFPrev[20];
-//     memset(BFPrev,-1,20);
-//     memset(BFValue,-1,20);
-//     BFValue[startIndex] = 0;
-//     for (int i = 0; i < numberOfVertices; i++) {
-//         BFValue[i] = G[startIndex][i];
-//         BFPrev[i] = startIndex;
-//     }
-//     BFPrev[startIndex] = - 1;
-//     for (int i = 0; i < numberOfVertices-1; i++) {    
-//         for (int u = 0; u < numberOfVertices; u++) {
-//             for (int v = 0; v < numberOfVertices; v++) {
-//                 if (BFValue[v] != 0 && (BFValue[v] > BFValue[u] + G[u][v])) {
-//                     BFValue[v] = BFValue[u] + G[u][v];
-//                     BFPrev[v] = u;
-//                 }
-//             }
-//         }
-//     }
-
-//     string res = "";
-//     int start = startVertex - 'A';
-//     int end = goalVertex - 'A';
-//     if (start == end) return string(1,startVertex);
-//     for (int i = end; i != -1; i = BFPrev[i]) {
-//         char temp = 'A';
-//         temp += i;
-//         res += " " + string(1,temp);
-//     }
-//     reverseStr(res);
-//     return res;
-// }
-
-int final_res = MAX_N;
-int final_path[20];
-int curr_path[20];
-bool visited[20];
-
-string final (int numberofVertices, char startVertex)
+void reverseStr(string& str)
 {
-    string sol = "";
-    for (int i = 0; i < numberofVertices; i++) {
-        char temp = 'A';
-        temp += curr_path[i];
-        sol += string(1,temp) + " ";
-    }
-    sol += string(1,startVertex);
-    return sol; 
+    int n = str.length();
+    for (int i = 0; i < n / 2; i++)
+        swap(str[i], str[n - i - 1]);
 }
 
-void copyToFinal(int curr_path[], int numberofVertices)
+TSP::TSP(int G[20][20], int N, int start)
+    : N(N), start(start)
 {
-    for (int i=0; i<numberofVertices; i++)
-        final_path[i] = curr_path[i];
-    final_path[numberofVertices] = curr_path[0];
-}
-
-int firstMin (int G[20][20], int i, int numberofVertices)
-{
-    int min = MAX_N;
-    for (int j = 0; j < numberofVertices; j++) {
-        if (G[20][20] < min && i != j) {
-            min = G[20][20];
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            this->G[i][j] = G[i][j];
         }
-
     }
-    return min;
+
 }
 
-int secondMin (int G[20][20], int i, int numberofVertices)
+void TSP::solve()
 {
-    int first = MAX_N, second = MAX_N;
-    for (int j = 0; j < numberofVertices; j++)
-    {
-        if (i == j)
-            continue;
- 
-        if (G[i][j] <= first)
-        {
-            second = first;
-            first = G[i][j];
-        }
-        else if (G[i][j] <= second && G[i][j] != first)
-            second = G[i][j];
+    int END_STATE = (1 << N) - 1;
+    int memo[N][1 << N];
+    for (int end = 0; end < N; end++) {
+        if (end == start) continue;
+        memo[end][(1<<start) | (1<<end)] = G[start][end]; 
     }
-    return second;
-}
 
-void TSPRec (int G[20][20], int curr_bound, int curr_weight, int level, int curr_path[],int numberofVertices)
-{
-    if (level == numberofVertices) {
-        if (G[curr_path[level-1]][curr_path[0]] != 0) {
-            int curr_res = curr_weight + G[curr_path[level-1]][curr_path[0]];
-            if (curr_res < final_res) {
-                copyToFinal(curr_path,numberofVertices);
-                final_res = curr_res;
+    for (int r = 3; r <= N; r++) {
+        for (int subset : combinations(r,N)) {
+            if (notIn(start,subset)) continue;
+            for (int next = 0; next < N; next++) {
+                if (next == start || notIn(next,subset)) continue;
+                int subsetWithoutNext = subset^(1 << next);
+                int min_dist = MAX_N;
+                for (int end = 0; end < N; end++) {
+                    if (end == start || end == next || notIn(end,subset)) continue;
+                    int newDistance = memo[end][subsetWithoutNext] + G[end][start];
+                    if (newDistance < min_dist) 
+                        min_dist = newDistance;
+                }
+                memo[next][subset] = min_dist;
             }
         }
-        return;
     }
 
-    for (int i = 0; i < numberofVertices; i++) {
-        if (G[curr_path[level-1]][i] != 0 && visited[i] == false) {
-            int temp = curr_bound;
-            curr_weight += G[curr_path[level-1]][i];
+    for (int i = 0; i < N; i++) {
+        if (i == start) continue;
+        int tourCost = memo[i][END_STATE] + G[i][start];
+        if (tourCost < minTourCost) minTourCost = tourCost;
+    }
 
-            if (level == 1)
-                curr_bound -= ((firstMin(G,curr_path[level-1],numberofVertices)
-                                + firstMin(G,i,numberofVertices))/2);
-            else 
-                curr_bound -= ((secondMin(G,curr_path[level-1],numberofVertices)
-                                + firstMin(G,i,numberofVertices))/2);
+    int lastIndex = start;
+    int state = END_STATE;
+    tour += string(1,'A'+start) + " ";
 
-            if (curr_bound + curr_weight < final_res) {
-                curr_path[level] = i;
-                visited[i] = true;
-                TSPRec(G,curr_bound,curr_weight,level+1,curr_path,numberofVertices);
+    for (int i = 1; i < N; i++) {
+        int bestIndex = -1;
+        int bestDist = MAX_N;
+        for (int j = 0; j < N; j++) {
+            if (j == start || notIn(j,state)) continue;
+            int newDist = memo[j][state] + G[j][lastIndex];
+            if (newDist < bestDist) {
+                bestDist = newDist;
+                bestIndex = j;
             }
-            curr_weight -= G[curr_path[level-1]][i];
-            curr_bound = temp;
-            memset(visited,false, numberofVertices);
-            for (int j = 0; j <= level - 1; j++)
-                visited[curr_path[j]] = true;
+        }
+        tour += string(1,bestIndex + 'A') + " ";
+        state = state ^ (1 << bestIndex);
+        lastIndex = bestDist;
+    }
+    
+    tour += string(1,start + 'A');
+    reverseStr(tour);
+}
+
+bool notIn(int elem, int subset)
+{
+    return ((1 << elem) & subset) == 0;
+}
+
+vector <int> combinations(int r,int n)
+{
+    vector <int> subsets;
+    combinations(0,0,r,n,subsets);
+    return subsets;
+}
+
+void combinations(int set, int at, int r, int n, vector <int> subsets)
+{
+    int elementLeft = n - at;
+    if (elementLeft < r) return;
+    if (r == 0) subsets.push_back(set);
+    else {
+        for (int i = at; i < n; i++) {
+            set ^= (1<<i);
+            combinations(set,i+1,r-1,n,subsets);
+            set ^= (1<<i);
         }
     }
 }
-
-void TSP (int G[20][20],int numberofVertices)
-{
-    int curr_path[numberofVertices+1];
-    int curr_bound = 0;
-    memset(curr_path,-1,numberofVertices);
-    memset(visited,0,numberofVertices);
-
-    for (int i = 0; i < numberofVertices; i++)
-        curr_bound += (firstMin(G,i,numberofVertices)
-                        + secondMin(G,i,numberofVertices));
-    curr_bound = (curr_bound&1)? curr_bound/2 + 1 :
-                                 curr_bound/2;
-    visited[0] = true;
-    curr_path[0] = 0;
-    TSPRec(G, curr_bound, 0, 1, curr_path,numberofVertices);
-}
-
-
-string Traveling (int G[20][20], int numberofVertices, char startVertex)
-{
-    return final(numberofVertices,startVertex);
-}
-
-
 
 int main()
 {
+    int n = 8;
     int G[20][20] = {
         {0, 72, 89, 77, 2, 58, 13, 69,}, // A 0
         {77, 0, 69, 31, 57, 93, 83, 48,}, // B 1 
@@ -175,9 +114,10 @@ int main()
         {18, 77, 49, 36, 98, 77, 0, 45}, // G 6
         {75, 9, 59, 7, 77, 65, 45, 0} // H 7
     };
-    //cout << Traveling(G,8,'D');
-    TSP(G,8);
-    for (int i = 0; i < 8; i++)
-        cout << final_path[i] << " ";
+
+    int startNode = 0;
+    TSP s1 = TSP(G,n,0);
+    s1.solve();
+    cout << s1.getTour();
     return 0;
 }
