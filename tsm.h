@@ -1,27 +1,12 @@
 #include <iostream>
 #include <string>
-#include <cstring>
-#include <algorithm>
-#include <vector>
 using namespace std;
-const int MAX_N = 1e5 + 5;
 
-class TSP
-{
-private:
-    int N,start;
-    int G[20][20];
-    int minTourCost = MAX_N;
-    string tour;
-public:
-    TSP(int G[20][20], int N, int start);
-    ~TSP(){};
-    void solve();
-    string getTour() {return tour;};
-};
-
-
-bool notIn(int elem, int subset);
-vector <int> combinations(int r,int n);
-void combinations(int set, int at, int r, int n, vector <int> subsets);
-void reverseStr(string& str);
+bool visited[20] = {false};
+int curr_path[20] = {0};
+int final_path[20] = {0};
+int curr_dist = 0;
+int final_dist = 100000;
+int MIN = 100000;
+void TSPRec(int level, int numberOfVertices, int G[20][20], char startVertex, int MIN);
+string Traveling(int G[20][20], int numberOfVertices, char startVertex);
