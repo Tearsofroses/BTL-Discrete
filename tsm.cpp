@@ -1,5 +1,15 @@
 #include "tsm.h"
 
+string PrintResult(int numberOfVertices, char startVertex, int final_path[])
+{
+    string ans = "";
+    for (int i = 0; i < numberOfVertices; i++) {
+        ans += string(1,'A' + final_path[i]) + " ";
+    }
+    ans += string(1,startVertex);
+    return ans;
+}
+
 void TSPRec(int level, int numberOfVertices, int G[20][20], char startVertex, int MIN)
 {
     for (int i = 0; i < numberOfVertices; i++) {
@@ -27,6 +37,7 @@ void TSPRec(int level, int numberOfVertices, int G[20][20], char startVertex, in
         }
     }
 }
+
 string Traveling(int G[20][20], int numberOfVertices, char startVertex)
 {
     for (int i = 0; i < numberOfVertices; i++) {
@@ -38,11 +49,7 @@ string Traveling(int G[20][20], int numberOfVertices, char startVertex)
     curr_path[0] = startVertex - 'A';
     visited[startVertex - 'A'] = 1;
     TSPRec(1, numberOfVertices, G, startVertex, MIN);
-    string ans = "";
-    for (int i = 0; i < numberOfVertices; i++) {
-        ans += string(1,'A' + final_path[i]) + " ";
-    }
-    ans += string(1,startVertex);
+    string result = PrintResult(numberOfVertices, startVertex, final_path);
     for (int i = 0; i < numberOfVertices; i++) {
         curr_path[i] = 0;
         final_path[i] = 0;
@@ -50,5 +57,5 @@ string Traveling(int G[20][20], int numberOfVertices, char startVertex)
     }
     curr_dist = 0;
     final_dist = 100000;
-    return ans;
+    return result;
 }

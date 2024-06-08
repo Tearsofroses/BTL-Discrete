@@ -10,3 +10,4 @@ int final_dist = 100000;
 int MIN = 100000;
 void TSPRec(int level, int numberOfVertices, int G[20][20], char startVertex, int MIN);
 string Traveling(int G[20][20], int numberOfVertices, char startVertex);
+string PrintResult(int numberOfVertices, char startVertex, int final_path[]);
